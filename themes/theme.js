@@ -219,25 +219,38 @@ export const DynamicLayout = props => {
  * @param {*} theme
  * @returns
  */
-export const useLayoutByTheme = ({ layoutName, theme }) => {
-  const router = useRouter()
-  const themeQuery = getCurrentTheme(router, theme)
-  const cacheKey = `${themeQuery}:${layoutName}`
+export const getLayoutByTheme = (themeName, layoutName) => {
+  const cacheKey = `${themeName}:${layoutName}`
 
   if (layoutByThemeCache.has(cacheKey)) {
-    scheduleFixThemeDOM(themeQuery === BLOG.THEME ? 80 : 240)
     return layoutByThemeCache.get(cacheKey)
   }
 
   const loadLayout = () =>
-    resolveThemeLayout(themeQuery, layoutName, EmptyPageLayout)
+    resolveThemeLayout(themeName, layoutName, EmptyPageLayout)
   const DynamicLayoutComponent = dynamic(loadLayout, {
     ssr: true,
     loading: getLayoutLoading(layoutName)
   })
   layoutByThemeCache.set(cacheKey, DynamicLayoutComponent)
-  scheduleFixThemeDOM(themeQuery === BLOG.THEME ? 80 : 240)
   return DynamicLayoutComponent
+}
+
+export const useLayoutByTheme = ({ layoutName, theme }) => {
+  const router = useRouter()
+  const themeQuery = getCurrentTheme(router, theme)
+  scheduleFixThemeDOM(themeQuery === BLOG.THEME ? 80 : 240)
+  return getLayoutByTheme(themeQuery, layoutName)
+}
+
+// SSR 空壳修复:next/dynamic 的 SSR 依赖渲染前 Loadable.preloadAll()
+// (next/dist/server/render.js),它只 flush「当时已注册」的组件;渲染中途
+// 才创建 dynamic() 会让冷进程首次渲染输出 fallback 空壳并被 ISR 缓存。
+// 模块顶层预创建默认主题全部布局,确保注册早于任何 SSR 渲染。
+const DEFAULT_THEME = normalizeThemeName(BLOG.THEME)
+getBaseLayoutByTheme(DEFAULT_THEME)
+for (const layoutName of new Set(Object.values(LAYOUT_MAPPINGS))) {
+  getLayoutByTheme(DEFAULT_THEME, layoutName)
 }
 
 /**

@@ -263,6 +263,18 @@ const Style = () => {
 }
 
       ${themeConsoleStyle('proxio', CONFIG)}
+
+  /**
+   * themeConsoleStyle 用 !important 把 #theme-proxio 下所有 [class~="bg-white"]
+   * 锁成 --proxio-console-card，导致导航栏的 lg:bg-transparent 失效：
+   * 桌面端菜单变成白底 + lg:text-white 白字，整块菜单不可见。
+   * 这里用更高特异性（两个 id）在 lg 断点恢复透明，浅色/深色模式均适用。
+   */
+  @media (min-width: 960px) {
+    #theme-proxio #navbarCollapse {
+      background-color: transparent !important;
+    }
+  }
   `}</style>
 }
 

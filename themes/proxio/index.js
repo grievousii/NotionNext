@@ -106,7 +106,7 @@ const LayoutIndex = props => {
                     <Blog posts={posts} />
                     {/* 更多文章按钮 */}
                     <div className='container mx-auto flex justify-end mb-4'>
-                        <SmartLink className='text-lg underline' href={'/archive'}>
+                        <SmartLink className='text-lg underline' href={'/category'}>
                             <span>{locale.COMMON.MORE}</span>
                             <i className='ml-2 fas fa-arrow-right' />
                         </SmartLink>

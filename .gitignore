@@ -58,6 +58,8 @@ output/
 /public/sitemap.xml
 /public/rss/*
 /sitemap.xml
+# UUID_REDIRECT 开启时构建生成的 Notion UUID→slug 映射
+/public/redirect.json
 
 # yarn
 package-lock.json
